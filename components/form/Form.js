@@ -10,25 +10,52 @@ import css from './Form.css';
 
 // Form á forsíðu
 export default function Form(props) {
-  const { onCreated } = props;
-
-  const [data, setData] = useState({ title: '', date: undefined });
+  const [data] = useState({ title: '', date: undefined });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState([]);
 
   async function onSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setErrors([]);
+    const newTodo = addTodo(data.title, data,due);
+    console.log(data.title + " " + data.date);
 
+    if (!newTodo.success) {
+      setErrors(newTodo.response);
+      setLoading(false);
+      return;
+    }
+
+    onCreated();
+    setLoading(false);
   }
 
-  function onChange(e) {
+  function onChangeTitle(e) {
+    data.title = e.target.value;
+  }
 
+  function onChangeDue(e) {
+    data.date = e.target.value;
   }
 
   return (
-    <form className={css.form} onSubmit={onSubmit}>
-      <h2 className={css.form__header}>Nýtt Verkefni</h2>
-      <label>Titill:</label><input></input>
-      <label>Klárast fyrir:</label><input type="datetime-local"></input>
+    <form className = { css.form } onSubmit = { onSubmit }>
+      {errors &&
+        <Errors errors = { errors } />}
+      {loading &&
+        <p>Hleð verkefnum</p>}
+      <h2 className = { css.form__header }> Nýtt verkefni</h2>
+      <Field
+          title = "Titill:"
+          value = { data.title }
+          onChange = { onChangeTitle }/>
+      <Field
+          title = "Klárast fyrir:"
+          type = "datetime-local"
+          onChange = { onChangeDue }/>
+
+      <Button children = "Búa til" onClick = { onSubmit } />
     </form>
   )
 }
